@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Log4j 2 configuration for Tutorial 6 (159.251 Software Design and Construction).
+
+  Two named loggers are used, matching LogManager.getLogger("FILE") and
+  LogManager.getLogger("TRANSACTIONS") in MergeTransactions.java:
+
+    * FILE logger        : file-access events. Writes to BOTH the log file logs.txt
+                           AND the console. (Requirement 5)
+    * TRANSACTIONS logger: transaction data. Writes to the CONSOLE only. (Requirement 6)
+
+  Layout: PatternLayout everywhere (Requirement 7).
+
+  To try different log levels (Requirement 8), change the "level" attribute on either
+  <Logger> below, e.g. set TRANSACTIONS to "info" to hide the DEBUG "imported transaction"
+  lines, or set FILE to "warn" to hide the "import data from ..." INFO lines.
+
+  Optional challenge: the CsvFile appender writes logs.csv in comma-separated format,
+  which you can open directly in Excel / a spreadsheet program.
+-->
+<Configuration status="WARN">
+  <Appenders>
+
+    <!-- Console appender, used by both named loggers -->
+    <Console name="Console" target="SYSTEM_OUT">
+      <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{1} - %msg%n"/>
+    </Console>
+
+    <!-- Required: FILE logger -> logs.txt (append=false so each run starts clean) -->
+    <File name="File" fileName="logs.txt" append="false">
+      <PatternLayout pattern="%d{ISO8601} [%t] %-5level %logger{1} - %msg%n"/>
+    </File>
+
+    <!-- Optional challenge: CSV-formatted file, openable in Excel -->
+    <File name="CsvFile" fileName="logs.csv" append="false">
+      <PatternLayout pattern="%d{ISO8601},%level,%logger{1},&quot;%msg&quot;%n"/>
+    </File>
+
+  </Appenders>
+
+  <Loggers>
+
+    <!-- File-access logger: INFO and above, to logs.txt + logs.csv + console -->
+    <Logger name="FILE" level="info" additivity="false">
+      <AppenderRef ref="File"/>
+      <AppenderRef ref="CsvFile"/>
+      <AppenderRef ref="Console"/>
+    </Logger>
+
+    <!-- Transaction-data logger: DEBUG by default (raise to "info" to hide debug lines), console only -->
+    <Logger name="TRANSACTIONS" level="debug" additivity="false">
+      <AppenderRef ref="Console"/>
+    </Logger>
+
+    <!-- Catch-all for any logging that does not use the two named loggers -->
+    <Root level="error">
+      <AppenderRef ref="Console"/>
+    </Root>
+
+  </Loggers>
+</Configuration>
